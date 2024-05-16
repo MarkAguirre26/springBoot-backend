@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +57,7 @@ public class SystemLogController {
         }
     }
 
-    private   String getCurrentDateAsString() {
+    private String getCurrentDateAsString() {
         // Create a new Date object with the current date and time
         Date currentDate = new Date();
 
@@ -75,29 +76,32 @@ public class SystemLogController {
     public ResponseEntity<String> getSystemLogFile(
             @RequestParam(name = "dateInput", required = true, defaultValue = "") String dateInput,
             @RequestParam(name = "info", required = false, defaultValue = "") String info,
-            @RequestParam(name = "error", required = false, defaultValue = "") String error) {
+            @RequestParam(name = "error", required = false, defaultValue = "") String error,
+            @RequestHeader(name = "authorization", required = false, defaultValue = "") String authorization) {
 
+        // Check if the provided key is valid
+        if (!authorization.equals("SampleKeyValue")) {
+            return new ResponseEntity<>("Access denied", HttpStatus.UNAUTHORIZED);
+        }
+
+        // Path to the log file
         Path filePath = Paths.get("amzSystemLogs.log");
-
-
-
-
+        // StringBuilder to store the filtered log content
         StringBuilder logContentBuilder = new StringBuilder();
 
-
         try {
-            if(dateInput.isEmpty()){
-                dateInput =  getCurrentDateAsString();
+            // If dateInput is not provided, get the current date as string
+            if (dateInput.isEmpty()) {
+                dateInput = getCurrentDateAsString();
             }
-
+            // Read all lines from the log file
             List<String> lines = Files.readAllLines(filePath);
 
-
+            // Filter the lines based on the date input and optional info and error strings
             String finalDateInput = dateInput;
             List<String> filteredLines = lines.stream()
                     .filter(line -> line.contains(finalDateInput))
                     .toList();
-
             if (!filteredLines.isEmpty()) {
                 if (!info.isEmpty() && !error.isEmpty()) {
                     filteredLines = filteredLines.stream()
@@ -113,16 +117,18 @@ public class SystemLogController {
                             .toList();
                 }
             }
-
+            // Append the filtered lines to the logContentBuilder
             filteredLines.forEach(line -> logContentBuilder.append(line).append("\n"));
 
         } catch (IOException e) {
+
+            // Handle any IO exception that occurs during file reading
             System.err.println("An error occurred: " + e.getMessage());
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(logContentBuilder.toString(), HttpStatus.OK);
     }
-
 
 
     @GetMapping("/tenant/{tenantId}")
