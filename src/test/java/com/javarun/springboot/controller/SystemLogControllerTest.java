@@ -2,7 +2,6 @@ package com.javarun.springboot.controller;
 
 import com.javarun.springboot.model.SystemLog;
 import com.javarun.springboot.service.SystemLogService;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
