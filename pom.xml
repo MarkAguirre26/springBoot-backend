@@ -57,6 +57,23 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>2.0.9</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito2</artifactId>
+			<version>2.0.9</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 
 	</dependencies>
@@ -75,6 +92,39 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.pitest</groupId>
+				<artifactId>pitest-maven</artifactId>
+				<version>1.16.1</version><!--Replacewiththelatestversionifnecessary-->
+				<executions>
+					<execution>
+						<id>pit-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>mutationCoverage</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<targetClasses>
+						<param>com.javarun.springboot.*</param><!--Classestomutate-->
+					</targetClasses>
+					<targetTests>
+						<param>com.javarun.springboot.*Test</param><!--Testclasses-->
+					</targetTests>
+					<mutators>
+						<mutator>DEFAULTS</mutator><!--Setofmutatorstouse-->
+					</mutators>
+					<!--<timeoutConst>4000</timeoutConst>&lt;!&ndash;Timeoutfortestsinmilliseconds&ndash;&gt;-->
+					<outputFormats>
+						<param>XML</param>
+						<param>HTML</param>
+					</outputFormats>
+				</configuration>
+
+			</plugin>
+
 		</plugins>
 	</build>
 
